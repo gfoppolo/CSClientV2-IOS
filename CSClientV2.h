@@ -77,6 +77,8 @@
 
 #pragma mark - Paiements
 - (void) cancelAbonnementById:(NSString*)anId completion:(void (^)(NSString * message, NSError * error))block;
+- (void) getPaiementPlanifiesForUserroleId:(NSString *)userroleId userrole:(NSString*)userrole atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
+- (void) getPaiementAbonnementsForUserroleId:(NSString *)userroleId userrole:(NSString*)userrole atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
 
 #pragma mark - Paiements - Praticien
 - (void) processPaymentWithBeneficiary:(NSString*)codeCS amount:(NSString*)amount pinCode:(NSString*)pinCode prestataire_id:(NSString*)prestataire_id prestataire_compte_id:(NSString*)prestataire_compte_id options:(NSDictionary*)options completion:(void (^)(NSDictionary * reponse, NSError * error))block;
@@ -93,14 +95,10 @@
 - (void) requestForRefund:(void (^)(NSArray * items, NSError * error))block;
 - (void) getFactureByRef:(NSString *)ref completion:(void (^)(NSString * base64Pdf, NSError * error))block;
 
-- (void) getPaiementPlanifiesAtPage:(NSString*)pageNum forPrestataireId:(NSString *)prestataireId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
-- (void) getPaiementAbonnementsAtPage:(NSString*)pageNum forPrestataireId:(NSString *)prestataireId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
 
 #pragma mark - Paiements - Beneficiaire
 - (void) processPaymentForBeneficiary:(NSMutableDictionary*)paramsBase options:(NSDictionary*)options completion:(void (^)(NSDictionary * reponse, NSError * error))block;
 - (void) getAskedPaymentsForBeneficiary:(NSString*)benefId completion:(void (^)(NSArray * transactions, NSError * error))block;
-- (void) getPaiementPlanifiesAtPage:(NSString*)pageNum forBeneficiaryId:(NSString *)beneficiaryId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
-- (void) getPaiementAbonnementsAtPage:(NSString*)pageNum forBeneficiaryId:(NSString *)beneficiaryId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
 - (void) getLastPaymentsForBeneficiary:(NSString*)beneficiaryId completion:(void (^)(NSArray * transactions, NSError * error))block;
 
 
@@ -208,8 +206,7 @@
 - (void) deleteAccountById:(NSString*)accountId completion:(void (^)(id responseObject, NSError * error))block;
 - (void) savePractitionerForId:(NSString*)PractitionerId withParams:(NSDictionary*)params completion:(void (^)(id responseObject, NSError * error))block;
 - (void) saveAccountForId:(NSString*)accountId withParams:(NSMutableDictionary*)params completion:(void (^)(NSDictionary * response, NSError * error))block;
-- (void) getUserPractitionerId:(NSString*)practitionerId completion:(void (^)(NSArray * data, NSError * error))block;
-- (void) getUserPractitionerForId:(NSString*)practitionerId completion:(void (^)(NSDictionary * response, NSError * error))block;
+- (void) getUserPractitionerForId:(NSString*)practitionerId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * data, NSString *total, NSError * error))block;
 - (void) saveUserPractitionerForId:(NSString*)practitionerId withParams:(NSDictionary*)params completion:(void (^)(NSDictionary * response, NSError * error))block;
 - (void) addUserPractitionerWithUserId:(NSString*)userId andPrestataireId:(NSString*)prestataireId andParams:(NSMutableDictionary*)params completion:(void (^)(NSDictionary * data, NSError * error))block;
 - (void) deleteUserPractitionerForId:(NSString*)practitionerId completion:(void (^)(NSDictionary * response, NSError * error))block;

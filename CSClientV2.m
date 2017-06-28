@@ -809,6 +809,52 @@
 }
 
 
+
+- (void) getPaiementPlanifiesAtPage:(NSString*)pageNum forBeneficiaryId:(NSString *)beneficiaryId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
+    NSLog(@"Page : %@ / %@", pageNum, maxResult);
+    [self POST:[NSString stringWithFormat:@"PaiementPlanifies/beneficiaire/%@?page=%@&limit=%@", beneficiaryId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        @try {
+            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], responseObject[@"data"][@"total"], nil);
+            }
+            else {
+                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                if(block) ((void (^)()) block)(nil,nil,error);
+            }
+        }
+        @catch (NSException *exception) {
+            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+            if(block) ((void (^)()) block)(nil,nil,error);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+        if(block) ((void (^)()) block)(nil,nil,err);
+    }];
+}
+
+
+- (void) getPaiementAbonnementsAtPage:(NSString*)pageNum forBeneficiaryId:(NSString *)beneficiaryId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
+    [self POST:[NSString stringWithFormat:@"PaiementAbonnements/beneficiaire/%@?page=%@&limit=%@", beneficiaryId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        @try {
+            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], responseObject[@"data"][@"total"], nil);
+            }
+            else {
+                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                if(block) ((void (^)()) block)(nil,nil,error);
+            }
+        }
+        @catch (NSException *exception) {
+            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+            if(block) ((void (^)()) block)(nil,nil,error);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+        if(block) ((void (^)()) block)(nil,nil,err);
+    }];
+}
+
+
 #pragma mark - Paiements - Praticien
 
 - (void) processPaymentWithBeneficiary:(NSString*)codeCS amount:(NSString*)amount pinCode:(NSString*)pinCode prestataire_id:(NSString*)prestataire_id prestataire_compte_id:(NSString*)prestataire_compte_id options:(NSDictionary*)options completion:(void (^)(NSDictionary * reponse, NSError * error))block {
@@ -1026,7 +1072,6 @@
 
 //params {@"practitionerId":x; @"page":x;@"limit":x} en option
 - (void) getRefundListForPractitioner:(NSString *)prestataireId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, NSString *total, NSError * error))block {
-    //[self GET:[NSString stringWithFormat:@"RemboursementPrestataires/practitioner/%@/%@/%@", params[@"practitionerId"], params[@"page"], params[@"limit"]]
     [self GET:[NSString stringWithFormat:@"RemboursementPrestataires/practitioner/%@/%@/%@", prestataireId, pageNum, maxResult]
    parameters:nil
       success:^(NSURLSessionDataTask *task, id responseObject) {
@@ -1079,8 +1124,8 @@
 }
 
 
-- (void) getPaiementPlanifiesAtPage:(NSString*)pageNum forPrestataireId:(NSString *)prestataireId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
-    [self POST:[NSString stringWithFormat:@"PaiementPlanifies/prestataire/%@?page=%@&limit=%@", prestataireId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+- (void) getPaiementPlanifiesForUserroleId:(NSString *)userroleId userrole:(NSString*)userrole atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
+    [self POST:[NSString stringWithFormat:@"PaiementPlanifies/%@/%@?page=%@&limit=%@", userrole, userroleId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
         @try {
             if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
                 NSArray * data = responseObject[@"data"][@"set"];
@@ -1102,8 +1147,8 @@
 }
 
 
-- (void) getPaiementAbonnementsAtPage:(NSString*)pageNum forPrestataireId:(NSString *)prestataireId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
-    [self POST:[NSString stringWithFormat:@"PaiementAbonnements/prestataire/%@?page=%@&limit=%@", prestataireId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+- (void) getPaiementAbonnementsForUserroleId:(NSString *)userroleId userrole:(NSString*)userrole atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
+    [self POST:[NSString stringWithFormat:@"PaiementAbonnements/%@/%@?page=%@&limit=%@", userrole, userroleId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
         @try {
             if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
                 NSArray * data = responseObject[@"data"][@"set"];
@@ -1176,51 +1221,6 @@
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
         if(block) ((void (^)()) block)(nil,err);
-    }];
-}
-
-
-- (void) getPaiementPlanifiesAtPage:(NSString*)pageNum forBeneficiaryId:(NSString *)beneficiaryId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
-    NSLog(@"Page : %@ / %@", pageNum, maxResult);
-    [self POST:[NSString stringWithFormat:@"PaiementPlanifies/beneficiaire/%@?page=%@&limit=%@", beneficiaryId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-        @try {
-            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
-                if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], responseObject[@"data"][@"total"], nil);
-            }
-            else {
-                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
-                if(block) ((void (^)()) block)(nil,nil,error);
-            }
-        }
-        @catch (NSException *exception) {
-            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
-            if(block) ((void (^)()) block)(nil,nil,error);
-        }
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-        if(block) ((void (^)()) block)(nil,nil,err);
-    }];
-}
-
-
-- (void) getPaiementAbonnementsAtPage:(NSString*)pageNum forBeneficiaryId:(NSString *)beneficiaryId maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block {
-    [self POST:[NSString stringWithFormat:@"PaiementAbonnements/beneficiaire/%@?page=%@&limit=%@", beneficiaryId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-        @try {
-            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
-                if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], responseObject[@"data"][@"total"], nil);
-            }
-            else {
-                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
-                if(block) ((void (^)()) block)(nil,nil,error);
-            }
-        }
-        @catch (NSException *exception) {
-            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
-            if(block) ((void (^)()) block)(nil,nil,error);
-        }
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-        if(block) ((void (^)()) block)(nil,nil,err);
     }];
 }
 
@@ -2407,64 +2407,29 @@
     }];
 }
 
-
-- (void) getUserPractitionerId:(NSString*)practitionerId completion:(void (^)(NSArray * data, NSError * error))block {
-    [self GET:[NSString stringWithFormat:@"Prestataires/view/%@/UserPrestataires", practitionerId]
+//tmp ds PractitionerProfileViewController
+- (void) getUserPractitionerForId:(NSString*)practitionerId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * data, NSString *total, NSError * error))block {
+    [self GET:[NSString stringWithFormat:@"affiliates/%@/interlocutors?filters[active][value]=3&filters[active][operator]=%@&page=%@&limit=%@", practitionerId, @"%3C", pageNum, maxResult]
    parameters:nil
       success:^(NSURLSessionDataTask *task, id responseObject) {
           @try {
               if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
-                  if(block) ((void (^)()) block)(responseObject[@"data"][@"user_prestataires"],nil);
+                  if(block) ((void (^)()) block)(responseObject[@"data"][@"set"],responseObject[@"data"][@"total"],nil);
               }
               else {
                   NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
-                  if(block) ((void (^)()) block)(nil, error);
+                  if(block) ((void (^)()) block)(nil, nil, error);
               }
           }
           @catch (NSException *exception) {
               NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
-              if(block) ((void (^)()) block)(nil, error);
+              if(block) ((void (^)()) block)(nil, nil, error);
           }
       }
       failure:^(NSURLSessionDataTask *task, NSError *error) {
           NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-          if(block) ((void (^)()) block)(nil,err);
+          if(block) ((void (^)()) block)(nil, nil, err);
       }];
-}
-
-
-// Pas utilisé, on a l'info dans Users/view/:id/Prestataires
-- (void) getUserPractitionerForId:(NSString*)practitionerId completion:(void (^)(NSDictionary * response, NSError * error))block {
-#ifdef DEBUG
-    NSLog(@"Prestataires/view/%@/UserPrestataires",practitionerId);
-#endif
-    
-    [self POST:[NSString stringWithFormat:@"Prestataires/view/%@/UserPrestataires", practitionerId] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-        @try {
-            NSLog(@" response : %@", responseObject);
-            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
-                NSDictionary * response = responseObject[@"data"];
-                
-#ifdef DEBUG
-                NSLog(@"Prestataires/view/:id/UserPrestataires response%@",response);
-#endif
-                
-                if(block) ((void (^)()) block)(response, nil);
-            }
-            else {
-                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
-                if(block) ((void (^)()) block)(nil, error);
-            }
-        }
-        @catch (NSException *exception) {
-            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
-            if(block) ((void (^)()) block)(nil,error);
-        }
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        NSLog(@"saveAccount.error : %@", error);
-        NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-        if(block) ((void (^)()) block)(nil, err);
-    }];
 }
 
 
@@ -2528,6 +2493,34 @@
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
         if(block) ((void (^)()) block)(nil,err);
+    }];
+}
+
+
+- (void) deleteUserPractitionerForId:(NSString*)userPractitionerId completion:(void (^)(NSDictionary * response, NSError * error))block {
+    [self DELETE:[NSString stringWithFormat:@"interlocutor/%@", userPractitionerId] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        @try {
+            NSLog(@" response : %@", responseObject);
+            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+#ifdef DEBUG
+                NSLog(@"UserPrestataires/edit response%@",responseObject);
+#endif
+                
+                if(block) ((void (^)()) block)(responseObject[@"data"], nil);
+            }
+            else {
+                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                if(block) ((void (^)()) block)(nil, error);
+            }
+        }
+        @catch (NSException *exception) {
+            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+            if(block) ((void (^)()) block)(nil,error);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSLog(@"saveAccount.error : %@", error);
+        NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+        if(block) ((void (^)()) block)(nil, err);
     }];
 }
 
