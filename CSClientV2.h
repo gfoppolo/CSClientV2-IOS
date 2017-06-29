@@ -199,8 +199,9 @@
 
 #pragma mark - Practitien
 - (void) getPractitionerInfoWithUserId:(NSString *)userId completion:(void (^)(NSDictionary * data, NSError * error))block;
-- (void) getPractitionerCompteById:(NSString*)practitionerId completion:(void (^)(NSArray * data, NSError * error))block;
-- (void) getAddressForEntity:(NSString*)entity entityId:(NSString*)entityId completion:(void (^)(NSDictionary * data, NSError * error))block;
+- (void) getPractitionerCompteById:(NSString*)practitionerId completion:(void (^)(NSDictionary * data, NSError * error))block;
+- (void) getAccountForId:(NSString*)practitionerId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * data, int total, NSError * error))block;
+- (void) getAddressForEntity:(NSString*)entity entityId:(NSString*)entityId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * data, int total, NSError * error))block;
 - (void) signUpPractitionerWithUserId:(NSString*)userId type_prestataire_id:(NSString*)type_prestataire_id completion:(void (^)(NSDictionary * data, NSError * error))block;
 - (void) addAccount:(NSDictionary*)params completion:(void (^)(id responseObject, NSError * error))block ;
 - (void) deleteAccountById:(NSString*)accountId completion:(void (^)(id responseObject, NSError * error))block;
