@@ -947,24 +947,27 @@
 }
 
 
-- (void) getAskedPaymentsForPractitioner:(NSString*)accountId completion:(void (^)(NSArray * transactions, NSError * error))block {
-    [self POST:[NSString stringWithFormat:@"Prestataires/view/%@/DemandePaiements", accountId] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+- (void) getAskedPaymentsForPractitioner:(NSString*)accountId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block {
+    NSLog(@"%@/%@/payments?type=requests&page=%@&limit=%@", userType, accountId, pageNum, maxResult);
+    
+    [self GET:[NSString stringWithFormat:@"affiliates/%@/payments?type=requests&page=%@&limit=%@", accountId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+    //[self POST:[NSString stringWithFormat:@"Prestataires/view/%@/DemandePaiements", accountId] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
         @try {
             if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
-                if(block) ((void (^)()) block)(responseObject[@"data"][@"demande_paiements"],nil);
+                if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], [responseObject[@"data"][@"total"] intValue], nil);
             }
             else {
                 NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
-                if(block) ((void (^)()) block)(nil,error);
+                if(block) ((void (^)()) block)(nil, nil,error);
             }
         }
         @catch (NSException *exception) {
             NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
-            if(block) ((void (^)()) block)(nil,error);
+            if(block) ((void (^)()) block)(nil, nil,error);
         }
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-        if(block) ((void (^)()) block)(nil,err);
+        if(block) ((void (^)()) block)(nil, nil,err);
     }];
 }
 
@@ -1346,33 +1349,35 @@
 
 #pragma mark - Appointments - Praticien
 
-- (void) getAppointmentsWithAccountId:(NSString *)accountId withParams:(NSDictionary *)params completion:(void (^)(NSArray * items, NSError * error))block {
-    NSLog(@"getAppointmentsWithCompletion.params : %@", params);
-    
-    [self POST:[NSString stringWithFormat:@"PrestataireComptes/view/%@/Meetings", accountId]
-    parameters:params
+- (void) getAppointmentsWithAccountId:(NSString *)accountId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, int total, NSError * error))block {
+    NSLog(@"accounts/%@/appointments?page=%@&limit=%@", accountId, pageNum, maxResult);
+    //[self POST:[NSString stringWithFormat:@"PrestataireComptes/view/%@/Meetings", accountId]
+    [self GET:[NSString stringWithFormat:@"accounts/%@/appointments?page=%@&limit=%@", accountId, pageNum, maxResult]
+    parameters:nil
        success:^(NSURLSessionDataTask *task, id responseObject) {
            @try {
                NSMutableArray * appointments = [[NSMutableArray alloc] init];
-               for (NSDictionary * appointment in responseObject[@"data"]) {
-                   if( appointment && ([appointment[@"status"] intValue]==0 || [appointment[@"status"] intValue]==1) ) {//On filtre les rdv annulés
-                       [appointments addObject:appointment];
+               if([responseObject[@"data"][@"total"] intValue]>0 && responseObject[@"data"][@"set"] != nil) {
+                   for (NSDictionary * appointment in responseObject[@"data"][@"set"]) {
+                       if( appointment && ([appointment[@"status"] intValue]==0 || [appointment[@"status"] intValue]==1) ) {//On filtre les rdv annulés
+                           [appointments addObject:appointment];
+                       }
                    }
                }
                // tri le appointments par ordre alphabétique du meeting_date
                NSSortDescriptor *aSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"meeting_date" ascending:YES];
                NSArray * sortedAppointments = [appointments sortedArrayUsingDescriptors:[NSArray arrayWithObjects:aSortDescriptor, nil]];
-               if(block) block(sortedAppointments, nil);
+               if(block) ((void (^)()) block)(sortedAppointments, [responseObject[@"data"][@"total"] intValue], nil);
            }
            @catch (NSException *exception) {
                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
-               if(block) block(nil, error);
+               if(block) ((void (^)()) block)(nil, nil, error);
            }
        }
        failure:^(NSURLSessionDataTask *task, NSError *error) {
            NSLog(@"getAppointmentsWithPractitionerId.error : %@", error);
            NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-           if(block) block(nil, err);
+           if(block) ((void (^)()) block)(nil, nil, err);
        }];
 }
 

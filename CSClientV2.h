@@ -86,7 +86,7 @@
 - (void) getLastPaymentsForPractitionerAccount:(NSString*)accountId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
 - (void) simulatePayment:(NSDictionary*)params completion:(void (^)(NSError * error))block;
 
-- (void) getAskedPaymentsForPractitioner:(NSString*)accountId completion:(void (^)(NSArray * transactions, NSError * error))block;
+- (void) getAskedPaymentsForPractitioner:(NSString*)accountId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block;
 - (void) cancelAskedPaymentsForCode:(NSString*)code completion:(void (^)(NSString * message, NSError * error))block;
 - (void) askForPayment:(NSDictionary*)params completion:(void (^)(NSString * message, NSError * error))block;
 
@@ -110,7 +110,7 @@
 #pragma mark - Appointments
 - (void) cancelAppointment:(NSString *)appointmentId completion:(void (^)(NSError *error))block;
 #pragma mark - Appointments - Praticien
-- (void) getAppointmentsWithAccountId:(NSString *)accountId withParams:(NSDictionary *)params  completion:(void (^)(NSArray * items, NSError * error))block;
+- (void) getAppointmentsWithAccountId:(NSString *)accountId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, int total, NSError * error))block;
 - (void) acceptAppointment:(NSString *)appointmentId completion:(void (^)(NSDictionary *appointment, NSError *error))block;
 - (void) getTimeSlotsWithAccountId:(NSString*)accountId andAddressId:(NSString*)addressId completion:(void (^)(NSArray *pTimeSlots, NSError *error))block;
 - (void) editTimeSlotsWithAccountId:(NSString *)accountId
