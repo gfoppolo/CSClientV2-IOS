@@ -39,6 +39,7 @@
 - (void) logout;
 - (void) reinitializePasswordForEmail:(NSString*)email andApiKey:(NSString *)key completion:(void (^)(NSError * error))block;
 - (void) signUpUserWithEmail:(NSString*)email password:(NSString*)password phone:(NSString*)phone role:(NSString*)role andApiKey:(NSString *)key completion:(void (^)(NSDictionary * data, NSError * error))block;
+- (void) addUserWithEmail:(NSString*)email password:(NSString*)password phone:(NSString*)phone role:(NSString*)role andApiKey:(NSString *)key completion:(void (^)(NSDictionary * data, NSError * error))block;
 - (void) saveUserForId:(NSString*)userId withParams:(NSDictionary*)params completion:(void (^)(NSDictionary * response, NSError * error))block;
 
 
@@ -86,7 +87,7 @@
 - (void) getLastPaymentsForPractitionerAccount:(NSString*)accountId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
 - (void) simulatePayment:(NSDictionary*)params completion:(void (^)(NSError * error))block;
 
-- (void) getAskedPaymentsForPractitioner:(NSString*)accountId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block;
+- (void) getAskedPaymentsForTypeUserId:(NSString*)typeUserId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block;
 - (void) cancelAskedPaymentsForCode:(NSString*)code completion:(void (^)(NSString * message, NSError * error))block;
 - (void) askForPayment:(NSDictionary*)params completion:(void (^)(NSString * message, NSError * error))block;
 

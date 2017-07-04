@@ -233,6 +233,42 @@
     }];
 }
 
+- (void) addUserWithEmail:(NSString*)email password:(NSString*)password phone:(NSString*)phone role:(NSString*)role andApiKey:(NSString *)key completion:(void (^)(NSDictionary * data, NSError * error))block {
+    NSDictionary * params = @{@"username":email,@"password":password,@"role":role};
+    [self POST:@"Users/add" parameters:params success:^(NSURLSessionDataTask *task, id responseObject) {
+        @try {
+            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                NSDictionary * response = responseObject[@"data"];
+#ifdef DEBUG
+                NSLog(@"signUpUserWithEmail response%@",response);
+#endif
+                if(block) ((void (^)()) block)(response,nil);
+            }
+            else {
+                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                if(block) ((void (^)()) block)(nil,error);
+            }
+        }
+        @catch (NSException *exception) {
+            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+            if(block) ((void (^)()) block)(nil,error);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSError * err;
+        NSHTTPURLResponse *response = error.userInfo[AFNetworkingOperationFailingURLResponseErrorKey];
+        if(error.userInfo[AFNetworkingOperationFailingURLResponseErrorKey]!=nil) {
+            NSInteger statusCode = response.statusCode;
+            if (statusCode == 0) {
+                err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:0 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+            }
+            else if (statusCode > 0) {
+                err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:statusCode userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Error code : %ld\n%@", (long)statusCode, error.userInfo[@"NSLocalizedDescription"]]}];
+            }
+        }
+        if(block) ((void (^)()) block)(nil,err);
+    }];
+}
+
 
 - (void) saveUserForId:(NSString*)userId withParams:(NSDictionary*)params completion:(void (^)(NSDictionary * response, NSError * error))block {
 #ifdef DEBUG
@@ -947,11 +983,10 @@
 }
 
 
-- (void) getAskedPaymentsForPractitioner:(NSString*)accountId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block {
-    NSLog(@"%@/%@/payments?type=requests&page=%@&limit=%@", userType, accountId, pageNum, maxResult);
+- (void) getAskedPaymentsForTypeUserId:(NSString*)typeUserId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block {
+    NSLog(@"%@/%@/payments?type=requests&page=%@&limit=%@", userType, typeUserId, pageNum, maxResult);
     
-    [self GET:[NSString stringWithFormat:@"affiliates/%@/payments?type=requests&page=%@&limit=%@", accountId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-    //[self POST:[NSString stringWithFormat:@"Prestataires/view/%@/DemandePaiements", accountId] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+    [self GET:[NSString stringWithFormat:@"%@/%@/payments?type=requests&page=%@&limit=%@", userType, typeUserId, pageNum, maxResult] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
         @try {
             if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
                 if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], [responseObject[@"data"][@"total"] intValue], nil);
