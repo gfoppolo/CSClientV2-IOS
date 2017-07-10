@@ -87,7 +87,7 @@
 - (void) getLastPaymentsForPractitionerAccount:(NSString*)accountId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
 - (void) simulatePayment:(NSDictionary*)params completion:(void (^)(NSError * error))block;
 
-- (void) getAskedPaymentsForTypeUserId:(NSString*)typeUserId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block;
+- (void) getPaymentsHistoryForTypeUserId:(NSString*)typeUserId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block;
 - (void) cancelAskedPaymentsForCode:(NSString*)code completion:(void (^)(NSString * message, NSError * error))block;
 - (void) askForPayment:(NSDictionary*)params completion:(void (^)(NSString * message, NSError * error))block;
 
@@ -100,7 +100,7 @@
 #pragma mark - Paiements - Beneficiaire
 - (void) processPaymentForBeneficiary:(NSMutableDictionary*)paramsBase options:(NSDictionary*)options completion:(void (^)(NSDictionary * reponse, NSError * error))block;
 - (void) getAskedPaymentsForBeneficiary:(NSString*)benefId completion:(void (^)(NSArray * transactions, NSError * error))block;
-- (void) getLastPaymentsForBeneficiary:(NSString*)beneficiaryId completion:(void (^)(NSArray * transactions, NSError * error))block;
+//- (void) getLastPaymentsForBeneficiary:(NSString*)beneficiaryId completion:(void (^)(NSArray * transactions, NSError * error))block;
 
 
 #pragma mark - QR Code payment
@@ -179,7 +179,7 @@
 
 #pragma mark - Emergency favorites
 - (void) getEmergencyNumbers:(void (^)(NSArray * items, NSError * error))block;
-- (void) getEmergencyFavoritesForBeneficiaryId:(NSString *)beneficiaryId completion:(void (^)(NSArray * items, NSError * error))block;
+- (void) getEmergencyFavoritesForBeneficiaryId:(NSString *)beneficiaryId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, NSString *total, NSError * error))block;
 - (void) addEmergencyFavoriteWithPractitienAccountId:(NSString *)practitienAccountId beneficiaryId:(NSString *)beneficiaryId addressId:(NSString *)addressId completion:(void (^)(NSError * error))block;
 - (void) deleteEmergencyFavorite:(NSString *)favoriteId forBeneficiaryId:(NSString *)beneficiaryId completion:(void (^)(NSError *error))block;
 
