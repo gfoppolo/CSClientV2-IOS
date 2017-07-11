@@ -962,7 +962,7 @@
 }
 
 
-- (void) simulatePayment:(NSDictionary*)params completion:(void (^)(NSError * error))block {
+- (void) simulatePayment:(NSDictionary*)params completion:(void (^)(NSDictionary * items, NSError * error))block {
     [self POST:@"Paiement/simulatePaiement" parameters:params success:^(NSURLSessionDataTask *task, id responseObject) {
         @try {
             if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
@@ -1174,6 +1174,28 @@
           NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
           if(block) block(nil, err);
       }];
+}
+
+
+- (void) getPaymentsForBeneficiary:(NSString*)benefId completion:(void (^)(NSDictionary * items, NSError * error))block {
+    [self GET:[NSString stringWithFormat:@"Beneficiaires/view/%@/PaiementBeneficiaires", benefId] parameters:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        @try {
+            if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                if(block) ((void (^)()) block)(responseObject[@"data"], nil);
+            }
+            else {
+                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                if(block) ((void (^)()) block)(nil,error);
+            }
+        }
+        @catch (NSException *exception) {
+            NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+            if(block) ((void (^)()) block)(nil,error);
+        }
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+        if(block) ((void (^)()) block)(nil,err);
+    }];
 }
 
 

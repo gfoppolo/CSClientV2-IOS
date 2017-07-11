@@ -85,7 +85,7 @@
 - (void) processPaymentWithBeneficiary:(NSString*)codeCS amount:(NSString*)amount pinCode:(NSString*)pinCode prestataire_id:(NSString*)prestataire_id prestataire_compte_id:(NSString*)prestataire_compte_id options:(NSDictionary*)options completion:(void (^)(NSDictionary * reponse, NSError * error))block;
 
 - (void) getLastPaymentsForPractitionerAccount:(NSString*)accountId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, NSString *total, NSError * error))block;
-- (void) simulatePayment:(NSDictionary*)params completion:(void (^)(NSError * error))block;
+- (void) simulatePayment:(NSDictionary*)params completion:(void (^)(NSDictionary * items, NSError * error))block;
 
 - (void) getPaymentsHistoryForTypeUserId:(NSString*)typeUserId userType:(NSString*)userType atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * transactions, int total, NSError * error))block;
 - (void) cancelAskedPaymentsForCode:(NSString*)code completion:(void (^)(NSString * message, NSError * error))block;
@@ -95,7 +95,7 @@
 - (void) getRefundListForPractitioner:(NSString *)prestataireId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, NSString *total, NSError * error))block;
 - (void) requestForRefund:(void (^)(NSArray * items, NSError * error))block;
 - (void) getFactureByRef:(NSString *)ref completion:(void (^)(NSString * base64Pdf, NSError * error))block;
-
+- (void) getPaymentsForBeneficiary:(NSString*)benefId completion:(void (^)(NSDictionary * items, NSError * error))block;
 
 #pragma mark - Paiements - Beneficiaire
 - (void) processPaymentForBeneficiary:(NSMutableDictionary*)paramsBase options:(NSDictionary*)options completion:(void (^)(NSDictionary * reponse, NSError * error))block;
