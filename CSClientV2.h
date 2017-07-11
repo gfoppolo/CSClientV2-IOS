@@ -56,7 +56,7 @@
 - (void) getSecteurActivites:(NSString *)key completion:(void (^)(NSArray * secteurActivites, NSError * error))block;
 - (void) getSpecialitiesForJob:(NSString*)jobId completion:(void (^)(NSArray * jobsSpecialities, NSError * error))block;
 - (void) getUserPractitionerRoles:(void (^)(NSArray * data, NSError * error))block;
-
+- (void) getMeetingStatus:(void (^)(NSDictionary * data, NSError * error))block;
 
 #pragma mark - Beneficiary
 - (void) lookForPractitionersWithParameters:(NSDictionary*)params completion:(void (^)(NSArray * practitioners, NSError * error))block;
@@ -119,7 +119,7 @@
                              config:(NSString *)config
                          completion:(void (^)(NSError * error))block;
 #pragma mark - Appointments - Beneficiaire
-- (void) getAppointmentsWithBeneficiaryId:(NSString *)beneficiaryId completion:(void (^)(NSArray * items, NSError * error))block;
+- (void) getAppointmentsWithBeneficiaryId:(NSString *)beneficiaryId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, int total, NSError * error))block;
 - (void) getAppointmentHoursForPractitionerId:(NSString *)practitinerId
                                     addressId:(NSString *)addressId
                                    completion:(void (^)(NSArray * items, NSError * error))block;

@@ -545,6 +545,18 @@
 }
 
 
+- (void) getMeetingStatus:(void (^)(NSDictionary * data, NSError * error))block {
+    NSDictionary * roles = @{
+                             @"0":NSLocalizedString(@"Attente", nil),
+                             @"1":NSLocalizedString(@"Confirmé", nil),
+                             @"2":NSLocalizedString(@"Annulé par le bénéficiaire", nil),
+                             @"3":NSLocalizedString(@"Annulé par le praticien", nil)
+                            };
+    
+    if(block) ((void (^)()) block)(roles,nil);
+}
+
+
 #pragma mark - Beneficiary
 
 - (void) lookForPractitionersWithParameters:(NSDictionary*)params completion:(void (^)(NSArray * practitioners, NSError * error))block {
@@ -1519,31 +1531,26 @@
 
 #pragma mark - Appointments - Beneficiaire
 
-- (void) getAppointmentsWithBeneficiaryId:(NSString *)beneficiaryId completion:(void (^)(NSArray * items, NSError * error))block {
-    NSDictionary * params = @{@"page":@"0",
-                              @"count":@"100"};
-    [self POST:[NSString stringWithFormat: @"Beneficiaires/view/%@/Meetings", beneficiaryId]
-    parameters:params
+- (void) getAppointmentsWithBeneficiaryId:(NSString *)beneficiaryId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, int total, NSError * error))block {
+    [self POST:[NSString stringWithFormat: @"beneficiaries/%@/appointments?page=%@&limit=%@", beneficiaryId, pageNum, maxResult]
+    parameters:nil
        success:^(NSURLSessionDataTask *task, id responseObject) {
            @try {
-               NSMutableArray * appointments = [[NSMutableArray alloc] init];
-               for (NSDictionary * appointment in responseObject[@"data"]) {
-                   if( appointment && ([appointment[@"status"] intValue]==0 || [appointment[@"status"] intValue]==1) ) {//On filtre les rdv annulés
-                       [appointments addObject:appointment];
-                   }
+               if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                   if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], [responseObject[@"data"][@"total"] intValue], nil);
                }
-               // tri le appointments par ordre alphabétique du meeting_date
-               NSSortDescriptor *aSortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"meeting_date" ascending:YES];
-               NSArray * sortedAppointments = [appointments sortedArrayUsingDescriptors:[NSArray arrayWithObjects:aSortDescriptor, nil]];
-               if(block) block(sortedAppointments, nil);
+               else {
+                   NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                   if(block) ((void (^)()) block)(nil, nil,error);
+               }
            }
            @catch (NSException *exception) {
                NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
-               if(block) block(nil, error);
+               if(block) ((void (^)()) block)(nil, nil, error);
            }
        } failure:^(NSURLSessionDataTask *task, NSError *error) {
            NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-           if(block) block(nil, err);
+           if(block) ((void (^)()) block)(nil, nil, err);
        }];
 }
 
