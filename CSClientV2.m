@@ -61,7 +61,12 @@
     [self.requestSerializer setValue:key forHTTPHeaderField:@"cs-api-key"];
     [self.requestSerializer setValue:[[NSLocale currentLocale] localeIdentifier] forHTTPHeaderField:@"Accept-Language"];
     
-    NSDictionary * params = @{@"username":email,@"password":password};
+    NSString *platform = [[UIDevice currentDevice] systemName];
+    NSString *platform_version = [[UIDevice currentDevice] systemVersion];
+    NSString *app_version = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    NSString *app = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+    
+    NSDictionary * params = @{@"username":email,@"password":password,@"platform":platform,@"platform_version":platform_version,@"app_version":app_version,@"app":app};
     
     [self POST:@"auth/authentification" parameters:params success:^(NSURLSessionDataTask *task, id responseObject) {
         @try {
@@ -967,28 +972,28 @@
         @try {
             if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
                 NSDictionary * data = responseObject[@"data"];
-                if( [[NSString stringWithFormat:@"%@", data[@"status"]] isEqualToString:@"1"]) {
-                    if(block) ((void (^)()) block)(nil);
+                if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                    if(block) ((void (^)()) block)(responseObject[@"data"][@"montants"], nil);
                 }
                 else {
                     NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:data[@"message"]}];
-                    if(block) ((void (^)()) block)(error);
+                    if(block) ((void (^)()) block)(nil, error);
                 }
             }
             else {
                 NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
-                if(block) ((void (^)()) block)(error);
+                if(block) ((void (^)()) block)(nil, error);
             }
         }
         @catch (NSException *exception) {
             NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
             NSLog(@"praticien/paiement ERROR exception : %@",exception);
-            if(block) ((void (^)()) block)(error);
+            if(block) ((void (^)()) block)(nil, error);
         }
         
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
-        if(block) ((void (^)()) block)(err);
+        if(block) ((void (^)()) block)(nil, err);
     }];
 }
 
