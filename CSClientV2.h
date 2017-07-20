@@ -57,6 +57,7 @@
 - (void) getSpecialitiesForJob:(NSString*)jobId completion:(void (^)(NSArray * jobsSpecialities, NSError * error))block;
 - (void) getUserPractitionerRoles:(void (^)(NSArray * data, NSError * error))block;
 - (void) getMeetingStatus:(void (^)(NSDictionary * data, NSError * error))block;
+- (void) getDocumentStatus:(void (^)(NSDictionary * data, NSError * error))block;
 
 #pragma mark - Beneficiary
 - (void) lookForPractitionersWithParameters:(NSDictionary*)params completion:(void (^)(NSArray * practitioners, NSError * error))block;
@@ -134,7 +135,9 @@
 
 #pragma mark - Documents
 - (void) getDocumentsTypes:(NSString *)role withParams:(NSDictionary *)params completion:(void (^)(NSArray * items, NSError * error))block;
-- (void) getDocumentsForEntity:(NSString*)entity entityId:entityId isKyc:(NSString *)isKyc isCarebook:(NSString *)isCarebook isActive:(NSString *)isActive completion:(void (^)(NSArray * items, NSError * error))block;
+- (void) getDocumentsForEntityOld:(NSString*)entity entityId:entityId isKyc:(NSString *)isKyc isCarebook:(NSString *)isCarebook isActive:(NSString *)isActive completion:(void (^)(NSArray * items, NSError * error))block;
+- (void) getDocumentsForEntity:(NSString*)entity entityId:entityId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult withParams:(NSString *)params completion:(void (^)(NSArray * items, NSString *total, NSError * error))block;
+
 - (void) addDocument:(UIImage *)image
            forUserId:(NSString *)userId
         documentType:(NSString *)documentType

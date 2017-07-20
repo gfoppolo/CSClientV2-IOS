@@ -561,6 +561,15 @@
     if(block) ((void (^)()) block)(roles,nil);
 }
 
+- (void) getDocumentStatus:(void (^)(NSDictionary * data, NSError * error))block {
+    NSDictionary * roles = @{
+                             @"0":NSLocalizedString(@"Validation en cours", nil),
+                             @"1":NSLocalizedString(@"Confirmé", nil),
+                             @"2":NSLocalizedString(@"Refusé", nil)
+                            };
+    
+    if(block) ((void (^)()) block)(roles,nil);
+}
 
 #pragma mark - Beneficiary
 
@@ -1695,7 +1704,7 @@
 //isKyc=1 => kyc
 //isCarebook=1 =>carnet santé
 //active =>0 : en attente de validation; 1 : validé; 2 : refusé; 3 : supprimé
-- (void) getDocumentsForEntity:(NSString*)entity entityId:entityId isKyc:(NSString *)isKyc isCarebook:(NSString *)isCarebook isActive:(NSString *)isActive completion:(void (^)(NSArray * items, NSError * error))block {
+- (void) getDocumentsForEntityOld:(NSString*)entity entityId:entityId isKyc:(NSString *)isKyc isCarebook:(NSString *)isCarebook isActive:(NSString *)isActive completion:(void (^)(NSArray * items, NSError * error))block {
     NSDictionary *params;
     if([entity isEqualToString:@"Prestataire"] || [entity isEqualToString:@"PrestataireCompte"]) {
         params = @{@"isCarebook":isCarebook, @"toList":@"1"};
@@ -1745,6 +1754,33 @@
        }];
 }
 
+//isKyc=1 => kyc
+//isCarebook=1 =>carnet santé
+//active =>0 : en attente de validation; 1 : validé; 2 : refusé; 3 : supprimé
+- (void) getDocumentsForEntity:(NSString*)entity entityId:entityId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult withParams:(NSString *)params completion:(void (^)(NSArray * items, NSString *total, NSError * error))block {
+    // isKyc:(NSString *)isKyc isCarebook:(NSString *)isCarebook isActive:(NSString *)isActive
+    NSLog(@"url : %@", [NSString stringWithFormat:@"%@/%@/documents?page=%@&limit=%@%@", entity, entityId, pageNum, maxResult, params]);
+    [self GET:[NSString stringWithFormat:@"%@/%@/documents?page=%@&limit=%@%@", entity, entityId, pageNum, maxResult, params]
+    parameters:nil
+       success:^(NSURLSessionDataTask *task, id responseObject) {
+           @try {
+               if([[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"]) {
+                   if(block) ((void (^)()) block)(responseObject[@"data"][@"set"], responseObject[@"data"][@"total"], nil);
+               }
+               else {
+                   NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                   if(block) ((void (^)()) block)(nil,nil,error);
+               }
+           }
+           @catch (NSException *exception) {
+               NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+               if(block) block(nil, nil, error);
+           }
+       } failure:^(NSURLSessionDataTask *task, NSError *error) {
+           NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+           if(block) block(nil, nil, err);
+    }];
+}
 
 
 //Incompréhensible, bug sur la phase d'inscription pour la photo de profil, mais pas ailleurs
