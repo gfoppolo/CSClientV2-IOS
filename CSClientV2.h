@@ -55,9 +55,10 @@
 - (void) getListOfJobsWithSpecialities:(NSString *)key completion:(void (^)(NSArray * jobsSpecialities, NSError * error))block;
 - (void) getSecteurActivites:(NSString *)key completion:(void (^)(NSArray * secteurActivites, NSError * error))block;
 - (void) getSpecialitiesForJob:(NSString*)jobId completion:(void (^)(NSArray * jobsSpecialities, NSError * error))block;
-- (void) getUserPractitionerRoles:(void (^)(NSArray * data, NSError * error))block;
+- (void) getEmergencyNumbers:(void (^)(NSArray * items, NSError * error))block;
 - (void) getMeetingStatus:(void (^)(NSDictionary * data, NSError * error))block;
 - (void) getDocumentStatus:(void (^)(NSDictionary * data, NSError * error))block;
+- (void) getUserPractitionerRoles:(void (^)(NSArray * data, NSError * error))block;
 
 #pragma mark - Beneficiary
 - (void) lookForPractitionersWithParameters:(NSDictionary*)params completion:(void (^)(NSArray * practitioners, NSError * error))block;
@@ -181,7 +182,6 @@
 
 
 #pragma mark - Emergency favorites
-- (void) getEmergencyNumbers:(void (^)(NSArray * items, NSError * error))block;
 - (void) getEmergencyFavoritesForBeneficiaryId:(NSString *)beneficiaryId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, NSString *total, NSError * error))block;
 - (void) addEmergencyFavoriteWithPractitienAccountId:(NSString *)practitienAccountId beneficiaryId:(NSString *)beneficiaryId addressId:(NSString *)addressId completion:(void (^)(NSError * error))block;
 - (void) deleteEmergencyFavorite:(NSString *)favoriteId forBeneficiaryId:(NSString *)beneficiaryId completion:(void (^)(NSError *error))block;

@@ -533,11 +533,63 @@
 }
 
 
+// Temporairement en dur, il faudra une route...
+- (void) getEmergencyNumbers:(void (^)(NSArray * data, NSError * error))block {
+    NSLocale *currentLocale = [NSLocale currentLocale];
+    NSString *countryCode = [currentLocale objectForKey:NSLocaleCountryCode];
+    
+    // /!\ Les NSLocalizedString dans un array ou un dictionary ne sont pas exportés dans le .string
+    
+    NSDictionary *intDict = @{
+                             @"FR":@[
+                                     @{@"title": @"Appel d'urgence européen", @"number": @"112", @"SMS": @"0"},
+                                     @{@"title": @"SMS pour sourds et malentendants", @"number": @"114", @"SMS": @"1"},
+                                     @{@"title": @"Pharmacie de garde", @"number": @"3237", @"SMS": @"0"},
+                                     @{@"title": @"Police", @"number": @"17", @"SMS": @"0"},
+                                     @{@"title": @"Pompiers", @"number": @"18", @"SMS": @"0"},
+                                     @{@"title": @"SAMU", @"number": @"15", @"SMS": @"0"},
+                                     @{@"title": @"SOS médecin", @"number": @"3624", @"SMS": @"0"},
+                                    ],
+                             @"GB":@[
+                                     @{@"title": @"Emergency Call", @"number": @"999", @"SMS": @"0"},
+                                     @{@"title": @"European Emergency Call", @"number": @"112", @"SMS": @"0"},
+                                     @{@"title": @"Police", @"number": @"101", @"SMS": @"0"},
+                                     @{@"title": @"National non-emergency medical number", @"number": @"111", @"SMS": @"0"},
+                                     @{@"title": @"NHS Direct (24 hour health helpline)", @"number": @"111", @"SMS": @"0"},
+                                     @{@"title": @"SMS for the deaf and hard of hearing", @"number": @"111", @"SMS": @"1"},
+                                    ]
+                             };
+    NSArray *data = [intDict objectForKey:countryCode];
+    if(block) block(data, nil);
+}
+
+- (void) getMeetingStatus:(void (^)(NSDictionary * data, NSError * error))block {
+    NSLocale *currentLocale = [NSLocale currentLocale];
+    NSString *countryCode = [currentLocale objectForKey:NSLocaleCountryCode];
+    NSDictionary * roles = @{
+                             @"0":NSLocalizedString(@"Attente", nil),
+                             @"1":NSLocalizedString(@"Confirmé", nil),
+                             @"2":NSLocalizedString(@"Annulé par le bénéficiaire", nil),
+                             @"3":NSLocalizedString(@"Annulé par le praticien", nil)
+                             };
+    
+    if(block) ((void (^)()) block)(roles,nil);
+}
+
+- (void) getDocumentStatus:(void (^)(NSDictionary * data, NSError * error))block {
+    NSLocale *currentLocale = [NSLocale currentLocale];
+    NSString *countryCode = [currentLocale objectForKey:NSLocaleCountryCode];
+    NSDictionary * roles = @{
+                             @"0":NSLocalizedString(@"Validation en cours", nil),
+                             @"1":NSLocalizedString(@"Confirmé", nil),
+                             @"2":NSLocalizedString(@"Refusé", nil)
+                             };
+    
+    if(block) ((void (^)()) block)(roles,nil);
+}
+
 //TODO a traduire
 - (void) getUserPractitionerRoles:(void (^)(NSArray * data, NSError * error))block {
-    //NSDictionary * roles = @{@"1":NSLocalizedString(@"Administrateur", nil),
-    //                             @"3":NSLocalizedString(@"Secrétaire", nil),
-    //                             @"4":NSLocalizedString(@"Cassier", nil)};
     NSMutableArray * roles = [[NSMutableArray alloc] init];
     NSDictionary * spec = @{@"id":@"1", @"lib_long":NSLocalizedString(@"Administrateur", nil)};
     [roles addObject:spec];
@@ -549,27 +601,6 @@
     if(block) ((void (^)()) block)(roles,nil);
 }
 
-
-- (void) getMeetingStatus:(void (^)(NSDictionary * data, NSError * error))block {
-    NSDictionary * roles = @{
-                             @"0":NSLocalizedString(@"Attente", nil),
-                             @"1":NSLocalizedString(@"Confirmé", nil),
-                             @"2":NSLocalizedString(@"Annulé par le bénéficiaire", nil),
-                             @"3":NSLocalizedString(@"Annulé par le praticien", nil)
-                            };
-    
-    if(block) ((void (^)()) block)(roles,nil);
-}
-
-- (void) getDocumentStatus:(void (^)(NSDictionary * data, NSError * error))block {
-    NSDictionary * roles = @{
-                             @"0":NSLocalizedString(@"Validation en cours", nil),
-                             @"1":NSLocalizedString(@"Confirmé", nil),
-                             @"2":NSLocalizedString(@"Refusé", nil)
-                            };
-    
-    if(block) ((void (^)()) block)(roles,nil);
-}
 
 #pragma mark - Beneficiary
 
@@ -2055,35 +2086,6 @@
 
 
 #pragma mark - Emergency favorites
-
-// Temporairement en dur, il faudra une route...
-- (void) getEmergencyNumbers:(void (^)(NSArray * items, NSError * error))block {
-    NSLocale *currentLocale = [NSLocale currentLocale];
-    NSString *countryCode = [currentLocale objectForKey:NSLocaleCountryCode];
-    NSDictionary *dataWW = @{
-                             @"FR":@[
-                                     @{@"title": NSLocalizedString(@"Appel d'urgence européen", nil), @"number": @"112", @"SMS": @"0"},
-                                     @{@"title": NSLocalizedString(@"SMS pour sourds et malentendants", nil), @"number": @"114", @"SMS": @"1"},
-                                     @{@"title": NSLocalizedString(@"Pharmacie de garde", nil), @"number": @"3237", @"SMS": @"0"},
-                                     @{@"title": NSLocalizedString(@"Police", nil), @"number": @"17", @"SMS": @"0"},
-                                     @{@"title": NSLocalizedString(@"Pompiers", nil), @"number": @"18", @"SMS": @"0"},
-                                     @{@"title": NSLocalizedString(@"SAMU", nil), @"number": @"15", @"SMS": @"0"},
-                                     @{@"title": NSLocalizedString(@"SOS médecin", nil), @"number": @"3624", @"SMS": @"0"},
-                                     ],
-                             @"GB":@[
-                                     @{@"title": @"Emergency Call", @"number": @"999", @"SMS": @"0"},
-                                     @{@"title": @"European Emergency Call", @"number": @"112", @"SMS": @"0"},
-                                     @{@"title": @"Police", @"number": @"101", @"SMS": @"0"},
-                                     @{@"title": @"National non-emergency medical number", @"number": @"111", @"SMS": @"0"},
-                                     @{@"title": @"NHS Direct (24 hour health helpline)", @"number": @"111", @"SMS": @"0"},
-                                     @{@"title": @"SMS for the deaf and hard of hearing", @"number": @"111", @"SMS": @"1"},
-                                     ]
-                             };
-    NSArray *data = [dataWW objectForKey:countryCode];
-    if(block) block(data, nil);
-}
-
-
 
 - (void) getEmergencyFavoritesForBeneficiaryId:(NSString *)beneficiaryId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, NSString *total, NSError * error))block {
     //[self GET:[NSString stringWithFormat:@"Beneficiaires/view/%@/favoris", beneficiaryId]
