@@ -120,6 +120,7 @@
                        forAddressId:(NSString *)addressId
                              config:(NSString *)config
                          completion:(void (^)(NSError * error))block;
+- (void) getUnavailabilitiesWithAccountId:(NSString *)accountId forAddressId:(NSString *)addressId completion:(void (^)(NSArray *items, NSError *error))block;
 #pragma mark - Appointments - Beneficiaire
 - (void) getAppointmentsWithBeneficiaryId:(NSString *)beneficiaryId atPage:(NSString*)pageNum maxResult:(NSString *)maxResult completion:(void (^)(NSArray * items, int total, NSError * error))block;
 - (void) getAppointmentHoursForPractitionerId:(NSString *)practitinerId
