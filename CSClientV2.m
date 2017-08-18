@@ -601,6 +601,29 @@
     if(block) ((void (^)()) block)(roles,nil);
 }
 
+- (void) getMeetingExceptionTypes:(void (^)(NSArray *items, NSError *error))block {
+    [self GET:@"MeetingExceptionTypes"
+   parameters:nil
+      success:^(NSURLSessionDataTask *task, id responseObject) {
+          @try {
+              if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                  if(block) ((void (^)()) block)(responseObject[@"data"], nil);
+              }
+              else {
+                  NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                  if(block) ((void (^)()) block)(nil, error);
+              }
+          }
+          @catch (NSException *exception) {
+              NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+              if(block) ((void (^)()) block)(nil, error);
+          }
+      } failure:^(NSURLSessionDataTask *task, NSError *error) {
+          NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+          if(block) ((void (^)()) block)(nil, err);
+      }];
+}
+
 
 #pragma mark - Beneficiary
 
@@ -1595,9 +1618,33 @@
        }];
 }
 
+
 - (void) getUnavailabilitiesWithAccountId:(NSString *)accountId forAddressId:(NSString *)addressId completion:(void (^)(NSArray *items, NSError *error))block {
     [self GET:[NSString stringWithFormat:@"PrestataireComptes/view/%@/MeetingExceptions", accountId]
     parameters:nil
+      success:^(NSURLSessionDataTask *task, id responseObject) {
+          @try {
+              if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
+                  if(block) ((void (^)()) block)(responseObject[@"data"][@"meeting_exceptions"], nil);
+              }
+              else {
+                  NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:responseObject[@"message"]}];
+                  if(block) ((void (^)()) block)(nil, error);
+              }
+          }
+          @catch (NSException *exception) {
+              NSError * error = [[NSError alloc] initWithDomain:[self.baseURL absoluteString] code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Oups, une erreur inconnue est survenue...", nil)}];
+              if(block) ((void (^)()) block)(nil, error);
+          }
+      } failure:^(NSURLSessionDataTask *task, NSError *error) {
+          NSError * err = [[NSError alloc] initWithDomain:NSLocalizedString(@"Connexion impossible", nil) code:-1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Erreur de connexion.\n\nMerci de vérifier votre connexion internet et de recommencer.", nil)}];
+          if(block) ((void (^)()) block)(nil, err);
+      }];
+}
+
+- (void) setUnavailabilityWithParams:(NSDictionary*)params completion:(void (^)(NSArray *items, NSError *error))block {
+   [self POST:@"MeetingExceptions/add"
+   parameters:params
       success:^(NSURLSessionDataTask *task, id responseObject) {
           @try {
               if( [[NSString stringWithFormat:@"%@", responseObject[@"success"]] isEqualToString:@"1"] && [[NSString stringWithFormat:@"%@", responseObject[@"code"]] isEqualToString:@"200"] ) {
